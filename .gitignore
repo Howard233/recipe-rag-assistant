@@ -206,5 +206,4 @@ marimo/_static/
 marimo/_lsp/
 __marimo__/
 
-# local notebook
-local_notebook.ipynb
+Qdrant/qdrant_storage/
