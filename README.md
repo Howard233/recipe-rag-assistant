@@ -99,7 +99,7 @@ FastAPI generates an API swagger after we start our application: http://localhos
 
 ## Experiment
 
-For experiments, we use Jupyter notebooks. They are saved in [`notebooks`]((notebooks/)) folder.
+For experiments, we use Jupyter notebooks. They are saved in [`notebooks`](notebooks/) folder.
 
 Use your preferred IDE (Anaconda, VSCode and etc.) to run the notebooks.
 
