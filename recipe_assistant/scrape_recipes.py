@@ -1,34 +1,79 @@
 import requests
 import pandas as pd
 from bs4 import BeautifulSoup
+from typing import List
 
 
 # parse recipe
-def get_recipe_description(soup):
+def get_recipe_description(soup:BeautifulSoup) -> str:
+    """get recipe description
+
+    Args:
+        soup (BeautifulSoup): soup from the raw html
+
+    Returns:
+        str: recipe descriptions
+    """
+
     description = soup.find("div", class_="recipe-description paragraph").get_text()
     return description
 
 
-def get_ratings(soup):
+def get_ratings(soup:BeautifulSoup) -> str:
+    """get the ratings of the recipe
+
+    Args:
+        soup (BeautifulSoup): soup from the raw html
+
+    Returns:
+        str: recipe rating information
+    """
+
     rating_div = soup.find("div", class_="rating")
     review_tag = rating_div.find_next()
     aria_label = review_tag["aria-label"].strip()
     return aria_label
 
 
-def get_ready_in(soup):
+def get_ready_in(soup:BeautifulSoup) -> str:
+    """get the "ready-in" information of the recipe
+
+    Args:
+        soup (BeautifulSoup): soup from the raw html
+
+    Returns:
+        str: recipe "ready-in" information
+    """
+
     ready_in_miniutes = soup.find("dt", string="Ready In:").find_next_sibling("dd")
     ready_in_miniutes = ready_in_miniutes.get_text(strip=True)
     return ready_in_miniutes
 
 
-def get_directions(soup):
+def get_directions(soup:BeautifulSoup) -> List[str]:
+    """get the cooking directions of a recipe
+
+    Args:
+        soup (BeautifulSoup): soup from the raw html
+
+    Returns:
+        List[str]: the directions/steps of a recipe (in a list)
+    """
+
     ul = soup.find("ul", class_="direction-list svelte-ar8gac")
     directions = [li.get_text(strip=True) for li in ul.find_all("li")]
     return directions
 
 
-def get_ingredients(soup):
+def get_ingredients(soup:BeautifulSoup) -> List[str]:
+    """get the ingredients of a recipe
+
+    Args:
+        soup (BeautifulSoup): soup from the raw html
+
+    Returns:
+        List[str]: the ingredients of a recipe (in a list)
+    """
     ul = soup.find("ul", class_="ingredient-list svelte-ar8gac")
 
     ingredients = []

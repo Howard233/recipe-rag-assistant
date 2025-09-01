@@ -1,0 +1,19 @@
+###
+GET http://localhost:8000/
+
+###
+POST http://localhost:8000/api/v1/question
+content-type: application/json
+
+{
+    "question": "Can you give me a beef recipe, and show me the ingredients and the steps?"
+}
+
+###
+POST http://localhost:8000/api/v1/feedback
+content-type: application/json
+
+{
+    "conversation_id": "0627f570-2097-4309-9a2f-1cdd1b73971b",
+    "feedback": "The answer is quite good."
+}
