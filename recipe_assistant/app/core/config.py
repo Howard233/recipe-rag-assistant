@@ -15,6 +15,7 @@ class Settings(BaseSettings):
 
     # OpenAI key
     OPENAI_API_KEY: str
+    QDRANT_URL: str
     
     # Environment
     ENVIRONMENT: str = "development"

@@ -2,6 +2,7 @@
 from fastapi import FastAPI
 from .api.endpoints import router
 from .core.config import settings
+from ..rag import init_qdrant
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -10,6 +11,10 @@ app = FastAPI(
 )
 
 app.include_router(router, prefix="/api/v1")
+
+@app.on_event("startup")
+async def startup_event():
+    init_qdrant()
 
 @app.get("/")
 async def root():

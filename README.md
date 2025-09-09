@@ -11,7 +11,7 @@ A Retrieval-Augmented Generation (RAG) cooking assistant that delivers step-by-s
 The recipes are scraped from [Food.com](Food.com) - **88 All-Time Best Dinner Recipes**.
 
 ## Technologies
-- `Python 3.10`
+- `Python 3.12`
 - `OpenAI` as an LLM
 - `uv` for Python package and project manager
 - `Docker` and `Docker Compose` for containerization
@@ -27,7 +27,7 @@ The code for the application is in the [recipe_assistant](recipe_assistant/) fol
     * [api](recipe_assistant/app/api) - we stores our implementation of the API endpoints in this folder.
     * [core](recipe_assistant/app/core) - the project configs are stored in this folder.  
     * [models](recipe_assistant/app/models) - this folder stores our definition of the Pydantic model that represents the API request body.
-* [api_example.http](recipe_assistant/api_example.http) - This http file utilizes the `REST Client` extension from VSCode. It provides a easy way to interact and test the API we build. 
+* [api_example.http](recipe_assistant/api_example.http) - This http file utilizes the `REST Client` extension from VSCode. It provides an easy way to interact and test the API we build. 
 
 ### Ingestion
 - [rag.py](recipe_assistant/rag.py) - the main RAG logic for building the prompt, retrieving the relevant documents, and generating the answers.
@@ -36,7 +36,7 @@ The code for the application is in the [recipe_assistant](recipe_assistant/) fol
 
 ## Using the application
 
-### Prepare the environment
+### Prepare the python environment
 
 The project uses `uv` for project and dependencies management. You can install `uv` by following the [instruction](https://docs.astral.sh/uv/getting-started/installation/#installation-methods) from its official website. 
 
@@ -63,12 +63,13 @@ source myenv/bin/activate
 pip install -r requirements.txt
 ```
 
-### Start Qdrant vector database
+### Prepare the environment variables
+You should create an `.env` file that stores your OpenAI API key in the project folder. We also need to put the `Qdrant_URL=http://localhost:6333` inside this file.
 
-We use `docker compose` to spin up the Qdrant service.
 ```
-cd Qdrant
-docker compose up -d
+# example
+OPENAI_API_KEY=YOUR_OPENAI_API_KEY
+QDRANT_URL=http://localhost:6333
 ```
 
 ### Scraping the source data (Optional)
@@ -83,12 +84,27 @@ uv run scrape_recipes.py
 
 ### Running the application
 
-Inside the project root directory [recipe-rag-assistant](./), run the following command:
+#### With docker-compose
+Inside the root directory: [recipe-rag-assistant](./), run
+```
+docker compose up
+```
+Wait until both `Qdrant` and `recipe-assistant` are ready. 
+
+#### Run the application locally
+
+You need to start the `Qdrant` vector database before running the application.
+
+We use `docker compose` to spin up the `Qdrant` service. Inside the project root directory [recipe-rag-assistant](./), run the following command:
+```
+docker compose up qdrant -d
+```
+Once the service is started, start the application with the below command:
 ```
 uv run uvicorn recipe_assistant.app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-This starts our FastAPI application on http://localhost:8000/. Use a browser to access this link and it will give you the following message:
+Either way, our FastAPI application will be started on http://localhost:8000/. Use a browser to access this link and it will give you the following message:
 
 ```json
 {"message":"Welcome to the recipe assistant application!"}
@@ -111,20 +127,20 @@ We have the following notebooks:
 
 The basic approach uses `sparse vector search` from `Qdrant` using model `bm25`.
 
-- Hit rate: 99.545%
-- MRR: 95.951%
+- Hit rate: 100.000%
+- MRR: 97.206%
 
 The `dense vector search` from `Qdrant` gives the following results (model used: `jinaai/jina-embeddings-v2-small-en`):
 
-- Hit rate: 98.864%
-- MRR: 97.564%
+- Hit rate: 100.000%
+- MRR: 98.985%
 
 The `Hybrid search` from `Qdrant` gives the following results:
 
-- Hit rate: 99.318%
-- MRR: 97.425%
+- Hit rate: 100.000%
+- MRR: 99.091%
 
-The `Hybrid search` approach has similar results to `sparse vector search`, but it has slighly higher MRR.
+The `Hybrid search` approach has the beset results, compared with other two search.
 
 ### RAG flow evaluation
 
@@ -133,13 +149,15 @@ of our RAG flow.
 
 For `gpt-4o-mini`, we had:
 
-- 427 (97%) `RELEVANT`
-- 13 (3%) `PARTLY_RELEVANT`
+- 424 (96%) `RELEVANT`
+- 12 (2%) `PARTLY_RELEVANT`
+- 4 (1%) `NON_RELEVANT`
 
 For `gpt-4o`, we had:
 
-- 420 (95%) `RELEVANT`
-- 20 (5%) `PARTLY_RELEVANT`
+- 418 (95%) `RELEVANT`
+- 18 (4%) `PARTLY_RELEVANT`
+- 4 (1%) `NON_RELEVANT`
 
 Interestingly, `gpt-4o-mini` has a better performance than `gpt-4o`.
 

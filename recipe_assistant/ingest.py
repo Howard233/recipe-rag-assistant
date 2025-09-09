@@ -2,16 +2,21 @@
 import pandas as pd
 from qdrant_client import QdrantClient, models
 from typing import List, Dict, Any
-
+import os
+from dotenv import load_dotenv
 
 from pathlib import Path
+
+load_dotenv()
 
 # Find the project root (where data folder is located)
 current_file = Path(__file__)  # ingest.py location
 project_root = current_file.parent.parent  # Go up to recipe-rag-assistant
 DATA_PATH = project_root / "data" / "recipes.csv"
 COLLECTION_NAME = "recipe-rag-hybrid"
-qdrant_client = QdrantClient("http://localhost:6333")
+
+QDRANT_URL = os.getenv("QDRANT_URL", "http://localhost:6333")
+qdrant_client = QdrantClient(QDRANT_URL)
 
 def create_qdrant_collection(collection_name:str = COLLECTION_NAME) -> None:
     """create a collection within Qdrant Vector DB for hybrid search

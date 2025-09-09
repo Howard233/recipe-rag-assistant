@@ -5,13 +5,19 @@ from qdrant_client import QdrantClient, models
 from dotenv import load_dotenv
 from openai import OpenAI
 from typing import List, Dict, Any
+import os
 
 # preparation
 load_dotenv()
 openai_client = OpenAI()
-ingest.index_documents()
-qdrant_client = QdrantClient("http://localhost:6333")
 
+QDRANT_URL = os.getenv("QDRANT_URL", "http://localhost:6333")
+qdrant_client = QdrantClient(QDRANT_URL)
+
+def init_qdrant():
+    """Initialize and index documents in Qdrant"""
+    ingest.create_qdrant_collection()
+    ingest.index_documents()
 
 def qdrant_rrf_search(query, collection_name="recipe-rag-hybrid", limit=5) -> List[models.ScoredPoint]:
     """rrf search for our rag
