@@ -28,6 +28,7 @@ The code for the application is in the [recipe_assistant](recipe_assistant/) fol
     * [core](recipe_assistant/app/core) - the project configs are stored in this folder.  
     * [models](recipe_assistant/app/models) - this folder stores our definition of the Pydantic model that represents the API request body.
 * [api_example.http](recipe_assistant/api_example.http) - This http file utilizes the `REST Client` extension from VSCode. It provides an easy way to interact and test the API we build. 
+    * If you are unable to use this extension, you can still make requests with Python `requests` modules, or other `HTTP` request tools. 
 
 ### Ingestion
 - [rag.py](recipe_assistant/rag.py) - the main RAG logic for building the prompt, retrieving the relevant documents, and generating the answers.
@@ -36,16 +37,16 @@ The code for the application is in the [recipe_assistant](recipe_assistant/) fol
 
 ## Using the application
 
-### Prepare the python environment
+### Preparing the Python environment
 
 The project uses `uv` for project and dependencies management. You can install `uv` by following the [instruction](https://docs.astral.sh/uv/getting-started/installation/#installation-methods) from its official website. 
 
-if you are not able to install `uv`, you can still use `pip` to install the requirements with the [requirements.txt](requirements.txt).
+If you are not able to install `uv`, you can still use `pip` to install the requirements with the [requirements.txt](requirements.txt).
 
-Please remember to create a `python virtual environment` before installing any packages and running any scripts.
+Please create a `Python virtual environment` before installing any packages and running any scripts/notebooks locally.
 
 **MacOS/Linux example:**
-```
+```bash
 # if using uv
 uv venv my-env # creates a virtual env named 'my-env'
 
@@ -54,29 +55,27 @@ source my-env/bin/activate # activate the virtual env
 uv pip install -r requirements.txt
 ```
 
-Non-uv command (standard way of using `pip` to create virtual env and install dependencies):
-```
-python -m venv my-env
+### Preparing the environment variables
+You should create an `.env` file that stores your OpenAI API key in the project folder. In addition, we put some other parameters that will be used by the app.
 
-source myenv/bin/activate
-
-pip install -r requirements.txt
-```
-
-### Prepare the environment variables
-You should create an `.env` file that stores your OpenAI API key in the project folder. We also need to put the `Qdrant_URL=http://localhost:6333` inside this file.
-
-```
+```bash
 # example
 OPENAI_API_KEY=YOUR_OPENAI_API_KEY
 QDRANT_URL=http://localhost:6333
+
+# PostgreSQL Configuration
+POSTGRES_HOST= postgres # localhost
+POSTGRES_DB=recipe_assistant
+POSTGRES_USER=recipe_user
+POSTGRES_PASSWORD=recipe_user_pwd
+POSTGRES_PORT=5432
 ```
 
 ### Scraping the source data (Optional)
 
 I have saved the source data in [recipes.csv](data/recipes.csv). However, you can run the following script if you are interested in scraping the data yourself.
 
-```
+```bash
 # If you have uv installed
 cd recipe_assistant
 uv run scrape_recipes.py
@@ -84,34 +83,42 @@ uv run scrape_recipes.py
 
 ### Running the application
 
-#### With docker-compose
+You need to start the services first. We use `docker-compose` to start the services.
+
+#### Running the application with docker-compose
 Inside the root directory: [recipe-rag-assistant](./), run
-```
+```bash
 docker compose up
 ```
-Wait until both `Qdrant` and `recipe-assistant` are ready. 
+Wait until all services are ready. You can check it from the docker logging messages in the terminal.
 
-#### Run the application locally
-
-You need to start the `Qdrant` vector database before running the application.
-
-We use `docker compose` to spin up the `Qdrant` service. Inside the project root directory [recipe-rag-assistant](./), run the following command:
-```
-docker compose up qdrant -d
-```
-Once the service is started, start the application with the below command:
-```
-uv run uvicorn recipe_assistant.app.main:app --reload --host 0.0.0.0 --port 8000
-```
-
-Either way, our FastAPI application will be started on http://localhost:8000/. Use a browser to access this link and it will give you the following message:
+Our FastAPI application can then be accessed on http://localhost:8000/. Use a browser to access this link and it will give you the following message:
 
 ```json
 {"message":"Welcome to the recipe assistant application!"}
 ```
 
-FastAPI generates an API swagger after we start our application: http://localhost:8000/docs. 
+FastAPI generates an API swagger after the application is started: http://localhost:8000/docs. 
 
+#### Database configuration
+The database will be initialized once the application starts. To check the content of the database, use `psql`:
+
+```bash
+psql -U recipe_user -h localhost -p 5432 -d recipe_assistant
+```
+
+You will be asked to enter the password. It is defined in the `.env` file: `POSTGRES_PASSWORD`.
+
+You can view the tables using `\dt` command:
+
+```sql
+\dt
+```
+
+You can select from the tables:
+```sql
+select * from conversations;
+```
 
 ## Experiment
 

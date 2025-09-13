@@ -4,8 +4,8 @@ from typing import Any, Dict, Optional
 
 class QuestionRequest(BaseModel):
     question: str
-    # context: Optional[str] = None
-    # user_id: Optional[str] = None
+    llm_model: Optional[str] = None
+    limit: Optional[int] = 5
 
 class QuestionResponse(BaseModel):
     conversation_id: str
@@ -14,8 +14,8 @@ class QuestionResponse(BaseModel):
 
 class FeedbackRequest(BaseModel):
     conversation_id: str
-    feedback: str
+    feedback: int
 
 class FeedbackResponse(BaseModel):
     conversation_id: str
-    feedback: str
+    feedback: int

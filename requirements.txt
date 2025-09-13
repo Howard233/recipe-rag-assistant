@@ -137,6 +137,8 @@ protobuf==6.32.0
     # via
     #   onnxruntime
     #   qdrant-client
+psycopg2-binary==2.9.10
+    # via recipe-rag-assistant (pyproject.toml)
 py-rust-stemmers==0.1.5
     # via fastembed
 pydantic==2.11.7

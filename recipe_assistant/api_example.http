@@ -6,7 +6,8 @@ POST http://localhost:8000/api/v1/question
 content-type: application/json
 
 {
-    "question": "Can you give me a beef recipe, and show me the ingredients and the steps?"
+    "question": "Can you give me a beef recipe, and show me the ingredients and the steps?",
+    "llm_model": "gpt-4o-mini"
 }
 
 ###
@@ -14,6 +15,78 @@ POST http://localhost:8000/api/v1/feedback
 content-type: application/json
 
 {
-    "conversation_id": "0627f570-2097-4309-9a2f-1cdd1b73971b",
-    "feedback": "The answer is quite good."
+    "conversation_id": "6e06d143-0bef-44a6-82ab-8d0b9d78bae5",
+    "feedback": 1
+}
+
+###
+POST http://localhost:8000/api/v1/question
+content-type: application/json
+
+{
+    "question": "Can you give me a chicken recipe?",
+    "llm_model": "gpt-4o-mini"
+}
+
+###
+POST http://localhost:8000/api/v1/feedback
+content-type: application/json
+
+{
+    "conversation_id": "902f5e57-03bb-4f96-9cb6-a19f9337c185",
+    "feedback": 1
+}
+
+###
+POST http://localhost:8000/api/v1/question
+content-type: application/json
+
+{
+    "question": "What are the ingredients of Lasagna?",
+    "llm_model": "gpt-4o-mini"
+}
+
+###
+POST http://localhost:8000/api/v1/feedback
+content-type: application/json
+
+{
+    "conversation_id": "31434034-3c8f-49db-9f91-e73449cc323c",
+    "feedback": 1
+}
+
+###
+POST http://localhost:8000/api/v1/question
+content-type: application/json
+
+{
+    "question": "Can you give me a salad recipe?",
+    "llm_model": "gpt-4o-mini"
+}
+
+###
+POST http://localhost:8000/api/v1/feedback
+content-type: application/json
+
+{
+    "conversation_id": "ce2dd962-5b73-4ebe-81b9-8add6ba3efe1",
+    "feedback": 1
+}
+
+###
+POST http://localhost:8000/api/v1/question
+content-type: application/json
+
+{
+    "question": "Can you give me a recipe of a Japanses dish?",
+    "llm_model": "gpt-4o-mini"
+}
+
+###
+POST http://localhost:8000/api/v1/feedback
+content-type: application/json
+
+{
+    "conversation_id": "ada37553-3151-43c6-bab7-50edbb9a5853",
+    "feedback": 1
 }

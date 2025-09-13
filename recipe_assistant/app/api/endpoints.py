@@ -8,7 +8,8 @@ from ..models.schemas import (
 import uuid
 from datetime import datetime
 
-from ...rag import llm
+from ...rag import rag
+from ...db import save_conversation, save_feedback
 
 router = APIRouter()
 
@@ -26,11 +27,20 @@ async def handle_question(request: QuestionRequest):
         if not request.question.strip():
             raise HTTPException(status_code=400, detail="Question cannot be empty")
 
-        answer = llm(request.question)
+        if request.llm_model:
+            answer = rag(request.question, request.llm_model, request.limit)
+        else:
+            answer = rag(request.question, limit=request.limit)
 
         response = QuestionResponse(
-            conversation_id=conversation_id, question=request.question, answer=answer
+            conversation_id=conversation_id, question=request.question, answer=answer['answer']
         )
+
+        # save convsersation
+        save_conversation(conversation_id=conversation_id,
+                          question=request.question,
+                          answer_data=answer
+                          )
 
         return response
 
@@ -54,9 +64,10 @@ async def handle_feedback(request: FeedbackRequest):
         if not request.conversation_id:
             raise HTTPException(status_code=400, detail="conversation_id is required")
 
-        print(f"Received a feedback at {datetime.now().strftime('%Y%m%d %H%M%S')}")
-        print(f"Conversation id: {conversation_id}")
-        print(f"Feedback: {feedback}")
+        save_feedback(
+            conversation_id=conversation_id,
+            feedback=feedback,
+        )
 
         # Create response
         response = FeedbackResponse(

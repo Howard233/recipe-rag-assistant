@@ -1,6 +1,17 @@
 version: "3.9"
 
 services:
+  postgres:
+    image: postgres:13
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
   recipe-assistant:
     build: .
     container_name: recipe-assistant
@@ -15,6 +26,10 @@ services:
     depends_on:
       qdrant: # make sure qdrant is started before the app
         condition: service_healthy  # Wait for healthy status
+      postgres:
+        condition: service_started
+      # grafana:
+      #   condition: service_started
     command: uv run uvicorn recipe_assistant.app.main:app --reload --host 0.0.0.0 --port 8000
     restart: unless-stopped
 
@@ -33,3 +48,27 @@ services:
       interval: 15s
       timeout: 10s
     restart: unless-stopped
+
+  # grafana:
+  #   image: grafana/grafana:latest
+  #   ports:
+  #     - "3000:3000"
+  #   volumes:
+  #     - grafana_data:/var/lib/grafana
+  #   environment:
+  #     - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin}
+  #     - GF_AUTH_DISABLE_LOGIN_FORM=false
+  #     - GF_AUTH_ANONYMOUS_ENABLED=false
+  #     - GF_SECURITY_ALLOW_EMBEDDING=true
+  #     - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER:-admin}
+  #     - GF_USERS_ALLOW_SIGN_UP=false
+  #     - GF_USERS_ALLOW_ORG_CREATE=false
+  #     - GF_USERS_AUTO_ASSIGN_ORG=true
+  #     - GF_USERS_AUTO_ASSIGN_ORG_ROLE=Viewer
+  #     - GF_SECURITY_SECRET_KEY=${GRAFANA_SECRET_KEY:-your_secret_key_here}
+  #   depends_on:
+  #     - postgres
+
+volumes:
+  postgres_data:
+  # grafana_data:
