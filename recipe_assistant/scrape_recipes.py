@@ -5,7 +5,7 @@ from typing import List
 
 
 # parse recipe
-def get_recipe_description(soup:BeautifulSoup) -> str:
+def get_recipe_description(soup: BeautifulSoup) -> str:
     """get recipe description
 
     Args:
@@ -19,7 +19,7 @@ def get_recipe_description(soup:BeautifulSoup) -> str:
     return description
 
 
-def get_ratings(soup:BeautifulSoup) -> str:
+def get_ratings(soup: BeautifulSoup) -> str:
     """get the ratings of the recipe
 
     Args:
@@ -35,7 +35,7 @@ def get_ratings(soup:BeautifulSoup) -> str:
     return aria_label
 
 
-def get_ready_in(soup:BeautifulSoup) -> str:
+def get_ready_in(soup: BeautifulSoup) -> str:
     """get the "ready-in" information of the recipe
 
     Args:
@@ -50,7 +50,7 @@ def get_ready_in(soup:BeautifulSoup) -> str:
     return ready_in_miniutes
 
 
-def get_directions(soup:BeautifulSoup) -> List[str]:
+def get_directions(soup: BeautifulSoup) -> List[str]:
     """get the cooking directions of a recipe
 
     Args:
@@ -65,7 +65,7 @@ def get_directions(soup:BeautifulSoup) -> List[str]:
     return directions
 
 
-def get_ingredients(soup:BeautifulSoup) -> List[str]:
+def get_ingredients(soup: BeautifulSoup) -> List[str]:
     """get the ingredients of a recipe
 
     Args:

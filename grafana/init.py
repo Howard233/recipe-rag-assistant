@@ -33,7 +33,7 @@ def create_service_account_and_token():
     if search_resp.status_code != 200:
         print(f"Failed to search service accounts: {search_resp.text}")
         return None
-    
+
     sa_list = search_resp.json().get("serviceAccounts", [])
 
     if sa_list:
@@ -43,7 +43,10 @@ def create_service_account_and_token():
         # Create it if missing
         sa_payload = {"name": sa_name, "role": "Admin"}
         sa_response = requests.post(
-            f"{GRAFANA_URL}/api/serviceaccounts", auth=auth, headers=headers, json=sa_payload
+            f"{GRAFANA_URL}/api/serviceaccounts",
+            auth=auth,
+            headers=headers,
+            json=sa_payload,
         )
 
         if sa_response.status_code not in (200, 201):
@@ -89,6 +92,7 @@ def create_service_account_and_token():
     api_key = token_response.json()["key"]
     print("Service account token created successfully")
     return api_key
+
 
 def create_or_update_datasource(api_key):
     headers = {
@@ -145,6 +149,7 @@ def create_or_update_datasource(api_key):
     else:
         print(f"Failed to create or update datasource: {response.text}")
         return None
+
 
 def delete_dashboard_if_exists(api_key, dashboard_title):
     headers = {
@@ -248,6 +253,7 @@ def create_dashboard(api_key, datasource_uid):
     else:
         print(f"Failed to create dashboard: {response.text}")
         return None
+
 
 if __name__ == "__main__":
     api_key = create_service_account_and_token()

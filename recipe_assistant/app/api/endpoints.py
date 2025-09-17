@@ -6,7 +6,6 @@ from ..models.schemas import (
     FeedbackResponse,
 )
 import uuid
-from datetime import datetime
 
 from ...rag import rag
 from ...db import save_conversation, save_feedback
@@ -33,14 +32,17 @@ async def handle_question(request: QuestionRequest):
             answer = rag(request.question, limit=request.limit)
 
         response = QuestionResponse(
-            conversation_id=conversation_id, question=request.question, answer=answer['answer']
+            conversation_id=conversation_id,
+            question=request.question,
+            answer=answer["answer"],
         )
 
         # save convsersation
-        save_conversation(conversation_id=conversation_id,
-                          question=request.question,
-                          answer_data=answer
-                          )
+        save_conversation(
+            conversation_id=conversation_id,
+            question=request.question,
+            answer_data=answer,
+        )
 
         return response
 

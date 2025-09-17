@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+
 def get_db_connection():
     return psycopg2.connect(
         host=os.getenv("POSTGRES_HOST", "postgres"),
@@ -14,6 +15,7 @@ def get_db_connection():
         user=os.getenv("POSTGRES_USER", "recipe_user"),
         password=os.getenv("POSTGRES_PASSWORD", "recipe_user_pwd"),
     )
+
 
 def init_db():
     conn = get_db_connection()
@@ -84,7 +86,7 @@ def save_conversation(conversation_id, question, answer_data, timestamp=None):
                     answer_data["eval_completion_tokens"],
                     answer_data["eval_total_tokens"],
                     answer_data["openai_cost"],
-                    timestamp
+                    timestamp,
                 ),
             )
         conn.commit()
@@ -107,6 +109,7 @@ def save_feedback(conversation_id, feedback, timestamp=None):
     finally:
         conn.close()
 
+
 def get_recent_conversation(limit=5, relevance=None):
     conn = get_db_connection()
     try:
@@ -124,6 +127,7 @@ def get_recent_conversation(limit=5, relevance=None):
             return cur.fetchall()
     finally:
         conn.close()
+
 
 def get_feedback_stats():
     conn = get_db_connection()

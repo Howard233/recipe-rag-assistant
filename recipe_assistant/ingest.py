@@ -1,4 +1,3 @@
-
 import pandas as pd
 from qdrant_client import QdrantClient, models
 from typing import List, Dict, Any
@@ -18,7 +17,8 @@ COLLECTION_NAME = "recipe-rag-hybrid"
 QDRANT_URL = os.getenv("QDRANT_URL", "http://localhost:6333")
 qdrant_client = QdrantClient(QDRANT_URL)
 
-def create_qdrant_collection(collection_name:str = COLLECTION_NAME) -> None:
+
+def create_qdrant_collection(collection_name: str = COLLECTION_NAME) -> None:
     """create a collection within Qdrant Vector DB for hybrid search
 
     Args:
@@ -43,6 +43,7 @@ def create_qdrant_collection(collection_name:str = COLLECTION_NAME) -> None:
             },
         )
 
+
 def prepare_recipe_documents(data_path: str = DATA_PATH) -> List[Dict[str, Any]]:
     """prepare the recipe documents for indexing
 
@@ -64,12 +65,12 @@ def prepare_recipe_documents(data_path: str = DATA_PATH) -> List[Dict[str, Any]]
         text = f"Recipe: {recipe['recipe_name'].strip()} | Description: {description_stripped} | Ratings: {recipe['ratings'].strip()} | Ready in: {recipe['ready-in'].strip()} | Directions: {directions_joined.strip()} | Ingredients: {ingredients_joined.strip()}"
 
         recipe["text"] = text
-    
+
     return recipes_documents
 
+
 def index_documents() -> None:
-    """index the Qdrant vector DB with recipes documents
-    """
+    """index the Qdrant vector DB with recipes documents"""
     recipes_documents = prepare_recipe_documents()
 
     # construct points

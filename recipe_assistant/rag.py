@@ -4,7 +4,7 @@ from qdrant_client import QdrantClient, models
 
 from dotenv import load_dotenv
 from openai import OpenAI
-from typing import List, Dict, Any, Tuple
+from typing import List, Dict, Tuple
 import os
 from time import time
 import json
@@ -16,12 +16,16 @@ openai_client = OpenAI()
 QDRANT_URL = os.getenv("QDRANT_URL", "http://localhost:6333")
 qdrant_client = QdrantClient(QDRANT_URL)
 
+
 def init_qdrant():
     """Initialize and index documents in Qdrant"""
     ingest.create_qdrant_collection()
     ingest.index_documents()
 
-def qdrant_rrf_search(query, collection_name="recipe-rag-hybrid", limit=5) -> List[models.ScoredPoint]:
+
+def qdrant_rrf_search(
+    query, collection_name="recipe-rag-hybrid", limit=5
+) -> List[models.ScoredPoint]:
     """rrf search for our rag
 
     Args:
@@ -63,8 +67,9 @@ def qdrant_rrf_search(query, collection_name="recipe-rag-hybrid", limit=5) -> Li
         results.append(point.payload)
     return results
 
-def llm(prompt:str, llm_model:str) -> Tuple[str, Dict[str, int]]:
-    """generating the answer using the llm after the retreival 
+
+def llm(prompt: str, llm_model: str) -> Tuple[str, Dict[str, int]]:
+    """generating the answer using the llm after the retreival
 
     Args:
         prompt (str): prompt
@@ -86,7 +91,8 @@ def llm(prompt:str, llm_model:str) -> Tuple[str, Dict[str, int]]:
     }
     return answer, token_stats
 
-def build_prompt(query:str, search_results:List[models.ScoredPoint]) -> str:
+
+def build_prompt(query: str, search_results: List[models.ScoredPoint]) -> str:
     prompt_template = """
 You're a cooking assistant. Answer the QUESTION based on the CONTEXT from the recipe database.
 Use only the facts from the CONTEXT when answering the QUESTION.
@@ -109,7 +115,6 @@ CONTEXT:
 
 
 def evalualte_relevance(question, answer):
-
     evaluation_prompt_template = """
     You are an expert evaluator for a RAG system.
     Your task is to analyze the relevance of the generated answer to the given question.
@@ -131,7 +136,7 @@ def evalualte_relevance(question, answer):
     """.strip()
 
     prompt = evaluation_prompt_template.format(question=question, answer=answer)
-    evaluation, tokens = llm(prompt, llm_model='gpt-4o-mini')
+    evaluation, tokens = llm(prompt, llm_model="gpt-4o-mini")
 
     try:
         json_eval = json.loads(evaluation)
@@ -140,43 +145,35 @@ def evalualte_relevance(question, answer):
         result = {"Relevance": "UNKNOWN", "Explanation": "Failed to parse evaluation"}
         return result, tokens
 
+
 OPENAI_PRICING = {
-    "gpt-5": {
-        "input": 1.25,
-        "output": 10.00
-    },
-    "gpt-5-mini": {
-        "input": 0.25,
-        "output": 2.00
-    },
-    "gpt-5-nano": {
-        "input": 0.05,
-        "output": 0.40
-    },
+    "gpt-5": {"input": 1.25, "output": 10.00},
+    "gpt-5-mini": {"input": 0.25, "output": 2.00},
+    "gpt-5-nano": {"input": 0.05, "output": 0.40},
     "gpt-4o-mini": {
-        "input": 0.15,     # dollars per 1M tokens
-        "output": 0.60
+        "input": 0.15,  # dollars per 1M tokens
+        "output": 0.60,
     },
-    "gpt-4o": {
-        "input": 2.50,
-        "output": 10.00
-    },
-    }
+    "gpt-4o": {"input": 2.50, "output": 10.00},
+}
+
 
 def calculate_openai_cost(model, tokens):
-
     openai_cost = None
 
     if model not in OPENAI_PRICING:
         print("Model not recognized. OpenAI cost calculation failed.")
     else:
         cost_info = OPENAI_PRICING[model]
-        openai_cost = tokens["prompt_tokens"] * cost_info["input"] / 1000000 + tokens["completion_tokens"] * cost_info["output"] / 1000000
-        
+        openai_cost = (
+            tokens["prompt_tokens"] * cost_info["input"] / 1000000
+            + tokens["completion_tokens"] * cost_info["output"] / 1000000
+        )
+
     return openai_cost
 
 
-def rag(query:str, llm_model:str="gpt-4o-mini", limit:int=5) -> str:
+def rag(query: str, llm_model: str = "gpt-4o-mini", limit: int = 5) -> str:
     """llm generating the answer from the prompt
 
     Args:
@@ -211,14 +208,16 @@ def rag(query:str, llm_model:str="gpt-4o-mini", limit:int=5) -> str:
         "model_used": llm_model,
         "response_time": response_time,
         "relevance": relevance.get("Relevance", "UNKNOWN"),
-        "relevance_explanation": relevance.get("Explanation", "Failed to parse evaluation"),
+        "relevance_explanation": relevance.get(
+            "Explanation", "Failed to parse evaluation"
+        ),
         "prompt_tokens": token_stats["prompt_tokens"],
         "completion_tokens": token_stats["completion_tokens"],
         "total_tokens": token_stats["total_tokens"],
         "eval_prompt_tokens": rel_token_stats["prompt_tokens"],
         "eval_completion_tokens": rel_token_stats["completion_tokens"],
         "eval_total_tokens": rel_token_stats["total_tokens"],
-        "openai_cost": openai_cost
+        "openai_cost": openai_cost,
     }
 
     return answer_data
