@@ -37,7 +37,7 @@ def init_db():
                     eval_prompt_tokens INTEGER NOT NULL,
                     eval_completion_tokens INTEGER NOT NULL,
                     eval_total_tokens INTEGER NOT NULL,
-                    openai_cost FLOAT NOT NULL,
+                    openai_cost FLOAT,
                     timestamp TIMESTAMP WITH TIME ZONE NOT NULL
                 )
             """)

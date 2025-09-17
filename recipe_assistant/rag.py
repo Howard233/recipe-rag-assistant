@@ -200,7 +200,11 @@ def rag(query:str, llm_model:str="gpt-4o-mini", limit:int=5) -> str:
     openai_cost_rag = calculate_openai_cost(llm_model, token_stats)
     openai_cost_eval = calculate_openai_cost(llm_model, rel_token_stats)
 
-    openai_cost = openai_cost_rag + openai_cost_eval
+    # if cost calculation fails
+    if (openai_cost_rag is not None) and (openai_cost_eval is not None):
+        openai_cost = openai_cost_rag + openai_cost_eval
+    else:
+        openai_cost = None
 
     answer_data = {
         "answer": answer_text,

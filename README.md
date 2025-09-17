@@ -1,10 +1,16 @@
 # RAG-based Cooking Assistant
 
-This is my capstone project for [DataTalksClub's LLM Zoomcamp](https://github.com/DataTalksClub/llm-zoomcamp/tree/main) (2025).
+Capstone project for [DataTalksClub's LLM Zoomcamp](https://github.com/DataTalksClub/llm-zoomcamp/tree/main) (2025).
 
 ## Description
 
-A Retrieval-Augmented Generation (RAG) cooking assistant that delivers step-by-step cooking instructions and culinary guidance. Simply ask for any dish, and get comprehensive recipes with detailed preparation steps, ingredient lists, cooking techniques, and helpful tips.
+This projects works on a `Retrieval-Augmented Generation (RAG) cooking assistant` that provides step-by-step recipes and culinary guidance. 
+
+Simply ask for a dish, and the assistant is able to return
+
+* Ingredient lists
+* Preparation and cooking steps
+* Helpful tips
 
 ## Datasets
 
@@ -12,10 +18,13 @@ The recipes are scraped from [Food.com](Food.com) - **88 All-Time Best Dinner Re
 
 ## Technologies
 - `Python 3.12`
-- `OpenAI` as an LLM
-- `uv` for Python package and project manager
-- `Docker` and `Docker Compose` for containerization
-- `FastAPI` as the API interface (see [Background](#background) for more information on `FastAPI`) 
+- `OpenAI` (LLM provider)
+- `uv` (Python package and project manager)
+- `Docker` and `Docker Compose` (containerization)
+- `FastAPI` (API interface - see [Background](#background) for more information)
+- `Qdrant` (vector database) 
+- `PostgreSQL` for conversations and feedback storage
+- `Grafana` (monitoring)
 
 ## Code
 
@@ -39,15 +48,23 @@ The code for the application is in the [recipe_assistant](recipe_assistant/) fol
 
 ### Preparing the Python environment
 
-The project uses `uv` for project and dependencies management. You can install `uv` by following the [instruction](https://docs.astral.sh/uv/getting-started/installation/#installation-methods) from its official website. 
+We recommend using `uv` for this project. You can install `uv` by following the [instruction](https://docs.astral.sh/uv/getting-started/installation/#installation-methods) from its official website. 
 
 If you are not able to install `uv`, you can still use `pip` to install the requirements with the [requirements.txt](requirements.txt).
 
-Please create a `Python virtual environment` before installing any packages and running any scripts/notebooks locally.
+Please always create a `Python virtual environment` before installing any packages and running any scripts/notebooks locally.
 
 **MacOS/Linux example:**
+
+This will create a `.venv` for you
 ```bash
-# if using uv
+uv sync --locked
+source .venv/bin/activate
+```
+
+If you prefer a customized name of your virtual env, use the following command:
+
+```bash
 uv venv my-env # creates a virtual env named 'my-env'
 
 source my-env/bin/activate # activate the virtual env
@@ -69,11 +86,16 @@ POSTGRES_DB=recipe_assistant
 POSTGRES_USER=recipe_user
 POSTGRES_PASSWORD=recipe_user_pwd
 POSTGRES_PORT=5432
+
+# Grafana Configuration
+GRAFANA_ADMIN_USER=admin
+GRAFANA_ADMIN_PASSWORD=admin
+GRAFANA_SECRET_KEY=SECRET_KEY
 ```
 
 ### Scraping the source data (Optional)
 
-I have saved the source data in [recipes.csv](data/recipes.csv). However, you can run the following script if you are interested in scraping the data yourself.
+The source data is saved in [recipes.csv](data/recipes.csv). However, you can run the following script if you are interested in scraping the data yourself.
 
 ```bash
 # If you have uv installed
@@ -83,22 +105,19 @@ uv run scrape_recipes.py
 
 ### Running the application
 
-You need to start the services first. We use `docker-compose` to start the services.
+You need to spin up the services via `docker-compose`.
 
-#### Running the application with docker-compose
 Inside the root directory: [recipe-rag-assistant](./), run
 ```bash
 docker compose up
 ```
 Wait until all services are ready. You can check it from the docker logging messages in the terminal.
 
-Our FastAPI application can then be accessed on http://localhost:8000/. Use a browser to access this link and it will give you the following message:
-
+- Our FastAPI application will be available at http://localhost:8000/. Accessing this localhost will give you the following message:
 ```json
 {"message":"Welcome to the recipe assistant application!"}
 ```
-
-FastAPI generates an API swagger after the application is started: http://localhost:8000/docs. 
+- FastAPI generates the API docs for us: http://localhost:8000/docs/
 
 #### Database configuration
 The database will be initialized once the application starts. To check the content of the database, use `psql`:
@@ -120,6 +139,49 @@ You can select from the tables:
 select * from conversations;
 ```
 
+## Monitoring
+
+We use `Grafana` to monitor the application. 
+
+### Setting up Grafana
+
+The complete configuration can be found in the [`grafana`](grafana/) folder.
+
+* [`init.py`](grafana/init.py): the python script that initializes the datasource and the dashboard.
+* [`dashboard.json`](grafana/dashboard.json): the actual dashboard (taken from the [2024 cohort](https://github.com/DataTalksClub/llm-zoomcamp/blob/main/cohorts/2024/04-monitoring/dashboard.json) of LLM Zoomcamp).
+
+The `Grafana` service is started once you run the `docker-compose` file. Once the service is started, run the following command in your terminal:
+
+```bash
+cd grafana
+
+# make sure the POSTGRES_HOST variable is not overwritten 
+env | grep POSTGRES_HOST
+
+uv run init.py
+```
+
+Once the setup is completed, you can access the dashboard at http://localhost:3000/.
+
+### Dashboards
+![dashboard](./images/dashboard.jpg)
+
+The monitoring dashboard contains the following panels:
+
+1. **Last 5 conversations (table):** This table displays the latest 5 conversations, including question, answer, relevance, and conversation timestamp.
+
+2. **+1/-1 (pie chart):** This pie chart visualizes the feedback from users. `thumbs_up` represents positive feedbacks, and `thumbs_down` shows negative feedbacks.
+
+3. **Relavancy (gauge chart):** This gauge chart summarizes the relevance of the responses for each conversation. The relevance is evaluated by LLM.
+
+4. **OpenAI cost (time series):** This is a time series chart that tracks the cost incurred by using OpenAI services.
+
+5. **Tokens (time series):** This is another time series chart that tracks the token usage for each conversation.
+
+6. **Model used (bar chart):** This bar chart displays the count of LLM models used by the conversations.
+
+7. **Response time (time series):** This time series chart tracks the response time of each conversation.
+
 ## Experiment
 
 For experiments, we use Jupyter notebooks. They are saved in [`notebooks`](notebooks/) folder.
@@ -127,8 +189,8 @@ For experiments, we use Jupyter notebooks. They are saved in [`notebooks`](noteb
 Use your preferred IDE (Anaconda, VSCode and etc.) to run the notebooks.
 
 We have the following notebooks:
-- [`rag-test.ipynb`](notebooks/rag-test.ipynb): This notebook contains the code for the RAG flow and the evaluation of the system
-- [`evaluation-data-generation.ipynb`](notebooks/evaluation-data-generation.ipynb): This notebook generates the ground truth dataset with the LLM for retrieval evaluation. 
+- [`rag-test.ipynb`](notebooks/rag-test.ipynb): RAG flow and the evaluation of the system
+- [`evaluation-data-generation.ipynb`](notebooks/evaluation-data-generation.ipynb): Generate the ground-truth dataset with the LLM for retrieval evaluation. 
 
 ### Retrieval evaluation
 

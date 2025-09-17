@@ -49,3 +49,9 @@ README.md
 
 # REST API example
 recipe-assistant/api_example.http
+
+# pictures
+images/
+
+# grafana code
+grafana/
