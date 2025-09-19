@@ -29,41 +29,48 @@ The recipes are scraped from [Food.com](Food.com) - **88 All-Time Best Dinner Re
 ## Project Structure
 ```bash
 recipe-rag-assistant/
-│── data/                   # source data, ground truth and evaluation results
-│   ├── ground-truth-retrieval.csv
-│   ├── rag-eval-gpt-4o-mini.csv
-│   ├── rag-eval-gpt-4o.csv
-│   ├── recipes.csv
-│── recipe_assistant/       # Application code and experiment notebooks
-│   ├── app/                # FastAPI project
-│   │   ├── main.py         # Entry point
-│   │   ├── api/            # API endpoints
-│   │       ├── endpoints.py
-│   │   ├── core/           # Configs
-│   │       ├── config.py
-│   │   └── models/         # Pydantic models
-│   │       ├── schemas.py
-│   ├── db.py               # Database setup and operations
-│   ├── rag.py              # RAG logic (retrieval + generation)
-│   ├── ingest.py           # Document ingestion into Qdrant
-│   └── scrape_recipes.py   # Scraping Food.com recipes
-│   └── api_example.http    # Sample HTTP requests
-│── grafana/                # Monitoring with Grafana
-│   ├── init.py             # Initialize Grafana datasource + dashboard
-│   └── dashboard.json      # Dashboard configuration
-│── notebooks/              # Jupyter notebooks for experiments
-│   ├── rag-test.py         # RAG pipeline flow testing
-│   ├── evaluation-data-generation.ipynb         # Generate ground truth for evaluation
-│── .env # Envrionment variables (API keys, database configs, etc.)
+│── .env                                    # Environment variables (API keys, DB configs, etc.)
 │── .gitignore
 │── .dockerignore
-│── docker-compose.yaml # Docker Compose for the servies
-│── Dockerfile # Dockerfile for running the FastAPI application servie
-│── pyproject.toml # Configuration file for dependencies and packaging (used by uv)
-│── uv.lock # Project dependencies and packaging for the project (used by uv)
-│── requirements.txt # Project dependencies (can be used by uv or pip)
-│── README.md # Project documentation
+│── docker-compose.yaml                     # Orchestration for services
+│── Dockerfile                              # FastAPI service image
+│── .python-version                         # Python version used for the project
+│── pyproject.toml                          # Project dependencies & config (uv/PEP 621)
+│── uv.lock                                 # Locked dependencies
+│── requirements.txt                        # Alternative deps file (for pip)
+│── README.md                               # Project documentation
+│
+│── data/                                   # Data assets (NOT tracked if too big)
+│   ├── recipes.csv           
+│   ├── ground-truth-retrieval.csv
+│   ├── rag-eval-gpt-4o-mini.csv
+│   └── rag-eval-gpt-4o.csv
+│
+│── recipe_assistant/                       # Main application package
+│   ├── app/                                # FastAPI project
+│   │   ├── main.py                         # Entrypoint
+│   │   ├── api/                            # API endpoints
+│   │   │   └── endpoints.py
+│   │   ├── core/                           # Configs, settings, constants
+│   │   │   └── config.py
+│   │   └── models/                         # Pydantic schemas
+│   │       └── schemas.py
+│   │
+│   ├── db.py                               # Database integration
+│   ├── rag.py                              # RAG logic
+│   ├── ingest.py                           # Index documents into Qdrant
+│   ├── scrape_recipes.py                   # scraper for the source data
+│   └── api_example.http                    # Example HTTP requests
+│
+│── grafana/                                # Monitoring setup
+│   ├── init.py                             # Init Grafana datasource + dashboard
+│   └── dashboard.json                      # Dashboard config
+│
+│── notebooks/                              # Jupyter notebooks for experiments
+│   ├── rag-test.ipynb                      # RAG pipeline flow and testing
+│   └── evaluation-data-generation.ipynb    # Generate ground truth for evaluation
 ```
+
 ## Using the application
 
 ### Preparing the Python environment
