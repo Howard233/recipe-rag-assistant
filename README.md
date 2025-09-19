@@ -29,7 +29,7 @@ The recipes are scraped from [Food.com](Food.com) - **88 All-Time Best Dinner Re
 ## Project Structure
 ```bash
 recipe-rag-assistant/
-│── .env                                    # Environment variables (API keys, DB configs, etc.)
+│── .env                                    # Environment variables (API keys, configs, etc.)
 │── .gitignore
 │── .dockerignore
 │── docker-compose.yaml                     # Orchestration for services
@@ -40,11 +40,11 @@ recipe-rag-assistant/
 │── requirements.txt                        # Alternative deps file (for pip)
 │── README.md                               # Project documentation
 │
-│── data/                                   # Data assets (NOT tracked if too big)
-│   ├── recipes.csv           
-│   ├── ground-truth-retrieval.csv
-│   ├── rag-eval-gpt-4o-mini.csv
-│   └── rag-eval-gpt-4o.csv
+│── data/                                   # data folder
+│   ├── recipes.csv                         # source data
+│   ├── ground-truth-retrieval.csv          # ground truth for evaluation
+│   ├── rag-eval-gpt-4o-mini.csv            # evaluation results for gpt-4o-mini
+│   └── rag-eval-gpt-4o.csv                 # evaluation results for gpt-4o
 │
 │── recipe_assistant/                       # Main application package
 │   ├── app/                                # FastAPI project
