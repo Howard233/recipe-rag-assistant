@@ -26,24 +26,44 @@ The recipes are scraped from [Food.com](Food.com) - **88 All-Time Best Dinner Re
 - `PostgreSQL` for conversations and feedback storage
 - `Grafana` (monitoring)
 
-## Code
-
-The code for the application is in the [recipe_assistant](recipe_assistant/) folder:
-
-### Interface
-* [app](recipe_assistant/app) - this is the folder that stores the `FastAPI` project.
-    * [main.py](recipe_assistant/app/main.py) - this is the main entrypoint of our application. We start application from this file.
-    * [api](recipe_assistant/app/api) - we stores our implementation of the API endpoints in this folder.
-    * [core](recipe_assistant/app/core) - the project configs are stored in this folder.  
-    * [models](recipe_assistant/app/models) - this folder stores our definition of the Pydantic model that represents the API request body.
-* [api_example.http](recipe_assistant/api_example.http) - This http file utilizes the `REST Client` extension from VSCode. It provides an easy way to interact and test the API we build. 
-    * If you are unable to use this extension, you can still make requests with Python `requests` modules, or other `HTTP` request tools. 
-
-### Ingestion
-- [rag.py](recipe_assistant/rag.py) - the main RAG logic for building the prompt, retrieving the relevant documents, and generating the answers.
-- [ingest.py](recipe_assistant/ingest.py) - processing and indexing the documents into `Qdrant` vector database.
-- [scrape_recipes.py](recipe_assistant/scrape_recipes.py) - the scripts that scrapes the recipe data from [Food.com](Food.com).
-
+## Project Structure
+```bash
+recipe-rag-assistant/
+│── data/                   # source data, ground truth and evaluation results
+│   ├── ground-truth-retrieval.csv
+│   ├── rag-eval-gpt-4o-mini.csv
+│   ├── rag-eval-gpt-4o.csv
+│   ├── recipes.csv
+│── recipe_assistant/       # Application code and experiment notebooks
+│   ├── app/                # FastAPI project
+│   │   ├── main.py         # Entry point
+│   │   ├── api/            # API endpoints
+│   │       ├── endpoints.py
+│   │   ├── core/           # Configs
+│   │       ├── config.py
+│   │   └── models/         # Pydantic models
+│   │       ├── schemas.py
+│   ├── db.py               # Database setup and operations
+│   ├── rag.py              # RAG logic (retrieval + generation)
+│   ├── ingest.py           # Document ingestion into Qdrant
+│   └── scrape_recipes.py   # Scraping Food.com recipes
+│   └── api_example.http    # Sample HTTP requests
+│── grafana/                # Monitoring with Grafana
+│   ├── init.py             # Initialize Grafana datasource + dashboard
+│   └── dashboard.json      # Dashboard configuration
+│── notebooks/              # Jupyter notebooks for experiments
+│   ├── rag-test.py         # RAG pipeline flow testing
+│   ├── evaluation-data-generation.ipynb         # Generate ground truth for evaluation
+│── .env # Envrionment variables (API keys, database configs, etc.)
+│── .gitignore
+│── .dockerignore
+│── docker-compose.yaml # Docker Compose for the servies
+│── Dockerfile # Dockerfile for running the FastAPI application servie
+│── pyproject.toml # Configuration file for dependencies and packaging (used by uv)
+│── uv.lock # Project dependencies and packaging for the project (used by uv)
+│── requirements.txt # Project dependencies (can be used by uv or pip)
+│── README.md # Project documentation
+```
 ## Using the application
 
 ### Preparing the Python environment
